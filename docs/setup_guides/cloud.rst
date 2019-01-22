@@ -73,7 +73,7 @@ them
   git clone https://github.com/pangeo-data/pangeo.git
   cd pangeo/gce/setup-guide
 
-You can then edit your configuration parameters in 
+You can then edit your configuration parameters in
 ``gce-pangeo-environment.sh`` file and then export them
 
 .. code-block:: bash
@@ -102,8 +102,7 @@ Run the following from the commmand line
 
 Now here is a bash script that will create a cluster corresponding to Pangeo
 need:
-- An incompressible default node pool for the Jupyterhub, web proxy, and user
-  notebook servers.
+- An incompressible default node pool for the Jupyterhub, web proxy, and user notebook servers.
 - An auto scaling node pool for Dask workers.
 
 This script is availabe in pangeo/gce/setup-guide as ``1_create_cluster.sh``,
@@ -139,6 +138,13 @@ so you can use it directly.
       --num-nodes=$MIN_WORKER_NODES --max-nodes=$MAX_WORKER_NODES --min-nodes=$MIN_WORKER_NODES
   gcloud container clusters get-credentials $CLUSTER_NAME --zone=$ZONE --project $PROJECTID
 
+.. Note::
+  If you expect your notebook images to be fairly large, it may be adventageous
+  to setup your cluster to use faster SSD boot disks. This will typically provide
+  faster boot times for notebooks and Dask workers. To do this, you'll want
+  to setup your cluster and any node pools with the ``--disk-type pd-ssd`` option.
+  More information on how to configure SSD boot disks can be found in the `GCP
+  documentation <https://cloud.google.com/kubernetes-engine/docs/how-to/custom-boot-disks>`_.
 
 Step Three: Configure Kubernetes
 --------------------------------
@@ -147,7 +153,7 @@ This script sets up the Kubernetes `Role Based Access Control
 <https://kubernetes.io/docs/reference/access-authn-authz/rbac/>`_
 necessary for a secure cluster deployment.
 
-This script is available in pangeo/gce/setup-guide as 
+This script is available in pangeo/gce/setup-guide as
 ``2_configure_kubernetes.sh``.
 
 .. code-block:: bash
@@ -169,13 +175,13 @@ This script is available in pangeo/gce/setup-guide as
 Step Four: Create Cluster-Specific Configuration
 ------------------------------------------------
 
-There are two configuration files needed to deploy the Pangeo helm chart. 
-Thos files are available in the pangeo/gce/setup-guide folder of this repo. 
+There are two configuration files needed to deploy the Pangeo helm chart.
+Those files are available in the pangeo/gce/setup-guide folder of this repo.
 The first, ``jupyter_config.yaml``, specifies modifications to the
-configuration that are unique to each deployment. 
+configuration that are unique to each deployment.
 
 Most important thing to configure here is the  ``loadBalancerIP``. If you've
-not `reserved a static external IP 
+not `reserved a static external IP
 <https://cloud.google.com/compute/docs/ip-addresses/reserve-static-external-ip-address>`_,
 you can do so by running::
 
@@ -183,9 +189,10 @@ you can do so by running::
   gcloud compute addresses list | grep pangeo-jhubip
 
 Other things you might want to configure, but that can be left as is:
+
 - EXTRA_PIP_PACKAGES: for adding some python modules to your user environment.
-- GCSFUSE_BUCKET: for mounting some google cloud storage bucket as a standard
   file system.
+- GCSFUSE_BUCKET: for mounting some google cloud storage bucket as a standard file system.
 
 .. code-block:: yaml
 
@@ -259,7 +266,7 @@ Other things you might want to configure, but that can be left as is:
         loadBalancerIP: 35.224.8.169
 
 The other file is ``secret_config.yaml``, which specifies cluster specific
-encryption tokens. The jupyterhub proxy secret token is just a random hash, 
+encryption tokens. The jupyterhub proxy secret token is just a random hash,
 which you can generate as follows.
 
 .. code-block:: bash
@@ -270,13 +277,13 @@ Pangeo.pydata.org uses `GitHub OAuth Callback
 <https://help.github.com/enterprise/2.13/admin/guides/user-management/using-github-oauth/>`_,
 (or `GitHub OAuth for developer <https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/>`_)
 to authenticate users. The ``clientSecret`` token needs to be obtained via
-github. 
+github.
 
 This authentication method needs an IP or domain name to work, the IP you've
 reserved above and put in jupyter_config.yaml if you don't have a domain name
 yet (just put the IP in place of pangeo.pydata.org domain name).
 
-Alternatively, you can also change authentication method, see 
+Alternatively, you can also change authentication method, see
 `Zero to Jupyterhub`_ guide for more information on that.
 
 .. code-block:: yaml
@@ -328,7 +335,7 @@ This script is available as ``3_deploy_helm.sh`` in the repo.
 
   helm install pangeo/pangeo --namespace=pangeo --name=jupyter \
      -f secret_config.yaml -f jupyter_config.yaml
-  
+
   # helm install pangeo/pangeo --namespace=pangeo --name=jupyter \
   #   --version=0.1.1-a14d55b \
   #   -f secret_config.yaml -f jupyter_config.yaml
